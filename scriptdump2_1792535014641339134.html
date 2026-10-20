@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>i042-scriptdump2</title>
+</head><body>
+<pre id="out">PENDING</pre>
+<div id="done"></div>
+<script>
+var log = [];
+var base = Object.getOwnPropertyNames(window);
+function dump(){
+  var out = [];
+  out.push("POST2SRV=" + (typeof post2SRV));
+  try { out.push("SRC_post2SRV=" + String(post2SRV)); } catch(e){ out.push("SRCERR " + e); }
+  ["postSRV","post2Server","doPost","submitForm","changeVCode","startup","refreshToken","getToken"].forEach(function(n){
+    try { if (typeof window[n] === 'function') out.push("SRC_" + n + "=" + String(window[n])); } catch(e){}
+  });
+  var now = Object.getOwnPropertyNames(window);
+  now.forEach(function(k){
+    if (base.indexOf(k) >= 0) return;
+    try {
+      var v = window[k];
+      if (typeof v === 'function') {
+        var s = String(v);
+        if (s.length > 20) out.push("NEWFUNC " + k + " :: " + s.substring(0,2000));
+      } else if (typeof v === 'string') {
+        out.push("NEWSTR " + k + " = " + v.substring(0,300));
+      } else if (v && typeof v === 'object') {
+        var ks = Object.keys(v).slice(0,20).join(',');
+        out.push("NEWOBJ " + k + " {" + ks + "}");
+      }
+    } catch(e){}
+  });
+  document.getElementById('out').textContent = out.join("\n\n");
+}
+function addScript(name, url, cb){
+  var s = document.createElement('script');
+  s.src = url;
+  s.onload = function(){ log.push("LOAD_OK " + name); cb && cb(); };
+  s.onerror = function(){ log.push("LOAD_ERR " + name); cb && cb(); };
+  document.head.appendChild(s);
+}
+addScript('jq', 'https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js', function(){
+  addScript('target', 'http://www.jshmrcb.com/frbank/script.do', function(){ setTimeout(dump, 500); });
+});
+</script>
+</body></html>
