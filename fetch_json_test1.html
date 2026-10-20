@@ -1,0 +1,8 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>i023-fetch</title></head><body><h1>i023-fetch</h1>
+<pre id="o">PENDING</pre>
+<script>
+fetch("http://www.jshmrcb.com/frbank/web.login.do", {method:'POST', headers:{'Content-Type':"application/json;charset=UTF-8"}, body:"{\"BankId\":\"9301\"}", mode:'cors', credentials:'include'})
+ .then(function(r){return r.text().then(function(t){return 'STATUS:'+r.status+'\n'+t;})})
+ .then(function(t){document.getElementById('o').textContent='RESP:'+t;})
+ .catch(function(e){document.getElementById('o').textContent='ERR:'+e;});
+</script></body></html>
