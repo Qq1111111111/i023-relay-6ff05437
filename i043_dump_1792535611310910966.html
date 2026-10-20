@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>i043-scriptdump</title></head>
+<body><pre id="out">PENDING</pre><div id="done"></div>
+<script>
+function collect(){
+  var out=[]; var srcs=[]; var names=[];
+  var keys=Object.getOwnPropertyNames(window);
+  keys.forEach(function(k){
+    try{
+      var v=window[k];
+      if(typeof v==='function'){ var s=String(v); if(s.length>20 && s.indexOf('native code')<0){ names.push(k); srcs.push('/*'+k+'*/\n'+s); } }
+      else if(typeof v==='string'){ srcs.push('/*str:'+k+'*/\n'+v); }
+    }catch(e){}
+  });
+  var all=srcs.join('\n');
+  out.push('VER=i043'); out.push('KEYS_len='+keys.length); out.push('FUNCS_len='+names.length);
+  out.push('FUNCS='+names.join(','));
+  out.push('POST2SRV_typeof='+(typeof post2SRV));
+  out.push('PE_AJAX_in_src='+(all.indexOf('PE-AJAX')>=0));
+  out.push('PE_ENCODING_in_src='+(all.indexOf('PE-ENCODING')>=0));
+  out.push('GENTOKEN_in_src='+(all.indexOf('GenToken.do')>=0));
+  out.push('GENTOKENIMG_in_src='+(all.indexOf('GenTokenImg')>=0));
+  out.push('LOGIN_DO_in_src='+(all.indexOf('login.do')>=0));
+  var ep={}; var m=all.match(/[A-Za-z0-9_\-]+\.do\b/g)||[]; m.forEach(function(x){ep[x]=(ep[x]||0)+1;});
+  out.push('ENDPOINTS='+JSON.stringify(ep));
+  var cm=all.match(/[A-Za-z0-9_]*(?:rsa|RSA|encrypt|Encrypt|publicKey|PublicKey|sm2|SM2|JSEncrypt|modulus|exponent)[A-Za-z0-9_]*/g)||[];
+  var uniq={}; cm.forEach(function(x){uniq[x]=1;}); out.push('CRYPTO_TOKENS='+JSON.stringify(Object.keys(uniq)));
+  var hdrs=(all.match(/setRequestHeader\([^)]*\)/g)||[]); out.push('SETREQHDR='+JSON.stringify(hdrs));
+  out.push('---SRC_post2SRV---\n'+(typeof post2SRV==='function'?String(post2SRV).substring(0,600):'NA'));
+  out.push('---SRC_loadDCToken---\n'+(typeof loadDCToken==='function'?String(loadDCToken).substring(0,700):'NA'));
+  out.push('---SRC_PEGetFormData---\n'+(typeof PEGetFormData==='function'?String(PEGetFormData).substring(0,500):'NA'));
+  document.getElementById('out').textContent=out.join('\n');
+  var d=document.createElement('div'); d.id='complete'; d.textContent='DONE'; document.body.appendChild(d);
+}
+var s=document.createElement('script');
+s.src='http://www.jshmrcb.com/frbank/script.do';
+s.onload=function(){ setTimeout(collect,300); };
+s.onerror=function(){ document.getElementById('out').textContent='LOAD_ERR_target_script'; };
+document.head.appendChild(s);
+</script></body></html>
