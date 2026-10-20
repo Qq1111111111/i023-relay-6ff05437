@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>i042-scriptdump</title>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head><body>
+<pre id="out">PENDING</pre>
+<script>
+window.__errs = [];
+window.onerror = function(m,s,l,c,e){ window.__errs.push("ERR:"+m+" @"+s+":"+l); };
+</script>
+<script src="http://www.jshmrcb.com/frbank/script.do"></script>
+<script>
+var o = [];
+try {
+  o.push("JQ=" + (typeof jQuery) + " SCHAR=" + (window.script_do_loaded||"?"));
+  o.push("SCRIPT_TAGS=" + [].map.call(document.scripts, function(s){return (s.src||'inline');}).join(' | '));
+  var names = Object.getOwnPropertyNames(window);
+  names.forEach(function(k){
+    try {
+      var v = window[k];
+      if (typeof v === 'function' && String(v).indexOf('native code') < 0) {
+        var src = String(v);
+        o.push("FUNC " + k + " :: " + src.substring(0, 1200));
+      } else if (typeof v === 'string' && /token|Token|_dToken|vcode|Vcode|VCode/.test(k)) {
+        o.push("STRVAR " + k + " = " + v.substring(0,300));
+      }
+    } catch(e) {}
+  });
+} catch(e) { o.push("TOPERR " + e); }
+o.push("ERRS=" + window.__errs.join(' ;; '));
+document.getElementById('out').textContent = o.join("\n\n");
+</script>
+</body></html>
