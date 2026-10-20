@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>i042-loadtest</title>
+</head><body>
+<pre id="out">PENDING</pre>
+<div id="done"></div>
+<script>
+var log = [];
+log.push("PROTO=" + location.protocol + " HOST=" + location.host);
+var done = 0; var total = 3;
+function fin(){ done++; if(done>=total){ dump(); } }
+function dump(){
+  log.push("JQ_typeof=" + (typeof jQuery) + " dollar=" + (typeof $));
+  log.push("HAS_post2SRV=" + (typeof window.post2SRV));
+  log.push("KEYS_len=" + Object.getOwnPropertyNames(window).length);
+  document.getElementById('out').textContent = log.join("\n");
+}
+function addScript(name, url){
+  var s = document.createElement('script');
+  s.src = url;
+  s.onload = function(){ log.push("LOAD_OK " + name); fin(); };
+  s.onerror = function(){ log.push("LOAD_ERR " + name); fin(); };
+  document.head.appendChild(s);
+  log.push("ADDED " + name + " -> " + url);
+}
+addScript('jq_jsdelivr', 'https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js');
+addScript('jq_codejq', 'https://code.jquery.com/jquery-1.12.4.min.js');
+addScript('target_script_do', 'http://www.jshmrcb.com/frbank/script.do');
+setTimeout(function(){ if(done<total){ log.push("TIMEOUT_WAIT done="+done); dump(); } }, 8000);
+</script>
+</body></html>
